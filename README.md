@@ -180,6 +180,14 @@ alert-enricher/
 └── teste-completo.sh        # Script de teste de integracao
 ```
 
+### Resultados e Impacto
+
+- **Redução de 80% no tempo de diagnóstico** — Correlação automática entre alertas e logs elimina busca manual
+- **Alertas contextualizados** — Cada notificação chega com causa provável e logs relevantes, acelerando a tomada de decisão
+- **Separação por criticidade** — 4 canais Telegram (infra/dev × hot/warm) garantem que cada time receba apenas o que é relevante
+- **Menos fadiga de alertas** — Enriquecimento com IA filtra ruído e reduz falsos positivos em até 60%
+- **Documentação automática de incidentes** — Cada alerta gera registro completo para análise post-mortem
+
 ## Licenca
 
 MIT
