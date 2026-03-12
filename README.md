@@ -1,13 +1,13 @@
 # Alert Enricher
 
-AI-powered alert enrichment service that correlates Alertmanager webhooks with OpenSearch logs and sends intelligent root cause analysis to Telegram.
+Servico de enriquecimento de alertas com IA que correlaciona webhooks do Alertmanager com logs do OpenSearch e envia analise inteligente de causa raiz para o Telegram.
 
-## Architecture
+## Arquitetura
 
 ```
                           +------------------+
   Alertmanager            |                  |          Telegram
-  webhook POST  --------> |  Alert Enricher  | -------> 4 channels
+  webhook POST  --------> |  Alert Enricher  | -------> 4 canais
                           |   (Flask 5001)   |          (infra/dev x hot/warm)
                           +--------+---------+
                                    |
@@ -15,54 +15,55 @@ AI-powered alert enrichment service that correlates Alertmanager webhooks with O
                           |                  |
                    +------+------+    +------+------+
                    |  OpenSearch |    |   AI API    |
-                   |  (log query)|    |  (analysis) |
+                   | (consulta   |    |  (analise)  |
+                   |   de logs)  |    |             |
                    +-------------+    +-------------+
 ```
 
-### Flow
+### Fluxo
 
-1. **Receive** — Alertmanager fires a webhook to `/webhook`
-2. **Correlate** — Queries OpenSearch for logs from the same host within a configurable time window (default 10 min)
-3. **Analyze** — Sends alert metadata + correlated logs to an AI API for root cause analysis
-4. **Route** — Sends enriched message to the correct Telegram channel(s) based on alert classification
-5. **Re-inject** — Posts the enriched alert back to Alertmanager with `enriched=true` label and AI annotations
+1. **Receber** — Alertmanager dispara um webhook para `/webhook`
+2. **Correlacionar** — Consulta o OpenSearch por logs do mesmo host dentro de uma janela de tempo configuravel (padrao 10 min)
+3. **Analisar** — Envia metadados do alerta + logs correlacionados para uma API de IA para analise de causa raiz
+4. **Rotear** — Envia mensagem enriquecida para o(s) canal(is) correto(s) do Telegram baseado na classificacao do alerta
+5. **Reinjetar** — Posta o alerta enriquecido de volta no Alertmanager com label `enriched=true` e anotacoes da IA
 
-## Alert Routing
+## Roteamento de Alertas
 
-Alerts are routed to **Infra**, **Dev**, or **both** teams, and within each team to a **Hot** (critical) or **Warm** (warning) channel.
+Alertas sao roteados para equipes de **Infra**, **Dev** ou **ambas**, e dentro de cada equipe para um canal **Hot** (critico) ou **Warm** (aviso).
 
-### Routing Rules
+### Regras de Roteamento
 
-| Condition | Destination |
-|-----------|-------------|
-| `source=zabbix` (any alert) | Infra only |
-| Alert in `AMBOS` set | Infra + Dev |
-| Alert in `ONLY_INFRA` set | Infra only |
-| Everything else | Dev only |
-
-### Severity Channels
-
-| Severity | Channel |
+| Condicao | Destino |
 |----------|---------|
-| `critical` | **Hot** (immediate attention) |
-| `warning` / other | **Warm** (informational) |
+| `source=zabbix` (qualquer alerta) | Apenas Infra |
+| Alerta no conjunto `AMBOS` | Infra + Dev |
+| Alerta no conjunto `ONLY_INFRA` | Apenas Infra |
+| Todo o resto | Apenas Dev |
 
-This gives 4 Telegram channels total:
+### Canais por Severidade
 
-- `TELEGRAM_INFRA_HOT` — Critical infra alerts (Zabbix, hardware, kernel, disk)
-- `TELEGRAM_INFRA_WARM` — Warning-level infra alerts
-- `TELEGRAM_DEV_HOT` — Critical dev alerts (pods, apps, databases)
-- `TELEGRAM_DEV_WARM` — Warning-level dev alerts
+| Severidade | Canal |
+|------------|-------|
+| `critical` | **Hot** (atencao imediata) |
+| `warning` / outro | **Warm** (informacional) |
 
-### Alert Classification
+Isso resulta em 4 canais Telegram no total:
+
+- `TELEGRAM_INFRA_HOT` — Alertas criticos de infra (Zabbix, hardware, kernel, disco)
+- `TELEGRAM_INFRA_WARM` — Alertas de aviso de infra
+- `TELEGRAM_DEV_HOT` — Alertas criticos de dev (pods, apps, bancos de dados)
+- `TELEGRAM_DEV_WARM` — Alertas de aviso de dev
+
+### Classificacao de Alertas
 
 **AMBOS (Infra + Dev):** NodeNotReady, ProxyDown, DatabaseDown, DatabaseSlow, GTMDown, PreviewDown, CVRDown, OOMKiller, ConnectionRefused, DNSProblem, NetworkInterfaceFlapping, TCPRetransmitHigh, NetworkPacketLoss, EtcdProblem, EtcdHighLatency, HighLoadAverage, ImagePullLatency, CertificateExpiring, HighNodeUptime
 
 **ONLY_INFRA:** ZombieProcesses, ReadOnlyFilesystem, DiskIOSaturation, FilesystemCorruptionProblem, IOErrors, DiskWriteLatency, DiskSmartHealth, NVMeHealth, RAIDDegraded, MemoryPressureHigh, ConntrackTableFull, ConntrackInsertFailed, HighMemoryUsage, ARPTableFull, FileDescriptorExhaustion, TCPTimeWaitExhaustion, SwapUsage, HardwareErrors, PowerSupplyProblem, FanFailure, KernelModuleLoadingProblems, KernelPanic, Segfault
 
-**DEV (default):** Everything else — PodCrashLooping, HPAAtMaxReplicas, AppErrorRecorrente, KubeletProblem, etc.
+**DEV (padrao):** Todo o resto — PodCrashLooping, HPAAtMaxReplicas, AppErrorRecorrente, KubeletProblem, etc.
 
-## Example Telegram Message
+## Exemplo de Mensagem no Telegram
 
 ```
 🔴 [ZABBIX] INFRA HOT
@@ -83,82 +84,82 @@ Detalhe: CPU acima de 90% por mais de 5 minutos
 [2026-03-11 14:29:58] ERROR - OOM pressure increasing
 ```
 
-### Source Icons
+### Icones por Origem
 
-| Source | Icon |
-|--------|------|
+| Origem | Icone |
+|--------|-------|
 | Zabbix | 🔴 |
 | Prometheus | 🟠 |
 | OpenSearch | ⚪ |
 | NPD (Node Problem Detector) | 🔵 |
 
-## Setup
+## Configuracao
 
-### Prerequisites
+### Pre-requisitos
 
-- Docker and Docker Compose
-- Alertmanager configured to send webhooks
-- OpenSearch with log data
-- Telegram bot token + 4 channel/group chat IDs
+- Docker e Docker Compose
+- Alertmanager configurado para enviar webhooks
+- OpenSearch com dados de logs
+- Token de bot Telegram + 4 IDs de chat/grupo
 
-### Quick Start
+### Como Usar
 
 ```bash
-# Clone
+# Clonar
 git clone https://github.com/Vinicius-Costa14/alert-enricher.git
 cd alert-enricher
 
-# Configure
+# Configurar
 cp .env.example .env
-# Edit .env with your values
+# Edite o .env com seus valores
 
-# Run
+# Rodar
 docker compose up -d
 
-# Configure Alertmanager webhook receiver pointing to:
+# Configure o receiver de webhook do Alertmanager apontando para:
 # http://<enricher-host>:5001/webhook
 ```
 
-### Testing with Mock AI
+### Testando com Mock AI
 
-The included `mock-ai` service provides predefined responses for common alerts, so you can test the full pipeline without a real AI backend:
+O servico `mock-ai` incluso fornece respostas predefinidas para alertas comuns, permitindo testar o pipeline completo sem um backend de IA real:
 
 ```bash
 docker compose up -d
 
-# Send a test alert
+# Enviar um alerta de teste
 curl -X POST http://localhost:5001/webhook \
   -H "Content-Type: application/json" \
   -d '{"alerts":[{"labels":{"alertname":"PodCrashLooping","severity":"critical","source":"prometheus","host":"web01","cluster":"prod","az":"us-east-1"},"annotations":{"description":"Pod reiniciando mais de 5 vezes em 10 minutos"}}]}'
 ```
 
-A full integration test script is included:
+Um script de teste de integracao completo esta incluso:
 
 ```bash
 ./teste-completo.sh
 ```
 
-## Environment Variables
+## Variaveis de Ambiente
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `ALERTMANAGER_URL` | Alertmanager API endpoint | `http://10.10.10.41:9093` |
-| `OPENSEARCH_URL` | OpenSearch endpoint | `http://10.10.10.45:9200` |
-| `OPENSEARCH_USER` | OpenSearch username (optional) | — |
-| `OPENSEARCH_PASS` | OpenSearch password (optional) | — |
-| `OPENSEARCH_INDEX` | Index pattern for log queries | `logs-*` |
-| `OPENSEARCH_HOST_FIELD` | Field name for host matching | `host.keyword` |
-| `MAX_LOGS` | Max log entries to fetch per alert | `10` |
-| `JANELA_MINUTOS` | Time window (minutes) for log correlation | `10` |
-| `AI_API_URL` | AI analysis API endpoint | `http://10.10.10.50:5002/analyze` |
-| `AI_TIMEOUT` | AI API timeout in seconds | `15` |
-| `TELEGRAM_TOKEN` | Telegram Bot API token | — |
-| `TELEGRAM_INFRA_HOT` | Chat ID for critical infra alerts | — |
-| `TELEGRAM_INFRA_WARM` | Chat ID for warning infra alerts | — |
-| `TELEGRAM_DEV_HOT` | Chat ID for critical dev alerts | — |
-| `TELEGRAM_DEV_WARM` | Chat ID for warning dev alerts | — |
+| Variavel | Descricao | Padrao |
+|----------|-----------|--------|
+| `ALERTMANAGER_URL` | Endpoint da API do Alertmanager | `http://10.10.10.41:9093` |
+| `OPENSEARCH_URL` | Endpoint do OpenSearch | `http://10.10.10.45:9200` |
+| `OPENSEARCH_USER` | Usuario do OpenSearch (opcional) | — |
+| `OPENSEARCH_PASS` | Senha do OpenSearch (opcional) | — |
+| `OPENSEARCH_INDEX` | Padrao de indice para consultas de logs | `logs-*` |
+| `OPENSEARCH_HOST_FIELD` | Nome do campo para matching de host | `host.keyword` |
+| `MAX_LOGS` | Maximo de entradas de log por alerta | `10` |
+| `JANELA_MINUTOS` | Janela de tempo (minutos) para correlacao de logs | `10` |
+| `AI_API_URL` | Endpoint da API de analise com IA | `http://10.10.10.50:5002/analyze` |
+| `AI_TIMEOUT` | Timeout da API de IA em segundos | `15` |
+| `TELEGRAM_TOKEN` | Token da API do Telegram Bot | — |
+| `TELEGRAM_INFRA_HOT` | Chat ID para alertas criticos de infra | — |
+| `TELEGRAM_INFRA_WARM` | Chat ID para alertas de aviso de infra | — |
+| `TELEGRAM_DEV_HOT` | Chat ID para alertas criticos de dev | — |
+| `TELEGRAM_DEV_WARM` | Chat ID para alertas de aviso de dev | — |
 
-## Project Structure
+## Estrutura do Projeto
 
 ```
 alert-enricher/
@@ -167,18 +168,18 @@ alert-enricher/
 ├── enricher/
 │   ├── Dockerfile
 │   ├── requirements.txt
-│   ├── app.py              # Webhook endpoint + routing logic
-│   ├── config.py            # Environment-based configuration
-│   ├── opensearch.py        # Log correlation queries
-│   ├── ai_client.py         # AI API client
-│   ├── alertmanager.py      # Re-inject enriched alerts
-│   └── notifier.py          # Telegram message formatting + delivery
+│   ├── app.py              # Endpoint de webhook + logica de roteamento
+│   ├── config.py            # Configuracao baseada em variaveis de ambiente
+│   ├── opensearch.py        # Consultas de correlacao de logs
+│   ├── ai_client.py         # Cliente da API de IA
+│   ├── alertmanager.py      # Reinjecao de alertas enriquecidos
+│   └── notifier.py          # Formatacao e envio de mensagens Telegram
 ├── mock-ai/
 │   ├── Dockerfile
-│   └── app.py               # Predefined responses for testing
-└── teste-completo.sh        # Integration test script
+│   └── app.py               # Respostas predefinidas para testes
+└── teste-completo.sh        # Script de teste de integracao
 ```
 
-## License
+## Licenca
 
 MIT
