@@ -1,0 +1,29 @@
+networks:
+  lab-internal:
+    external: true
+    name: monitoring-lab_lab-internal
+
+services:
+
+  enricher:
+    build: ./enricher
+    container_name: lab-enricher
+    hostname: lab-enricher
+    restart: unless-stopped
+    env_file: .env
+    networks:
+      lab-internal:
+        ipv4_address: 10.10.10.49
+    ports:
+      - "5001:5001"
+
+  mock-ai:
+    build: ./mock-ai
+    container_name: lab-mock-ai
+    hostname: lab-mock-ai
+    restart: unless-stopped
+    networks:
+      lab-internal:
+        ipv4_address: 10.10.10.50
+    ports:
+      - "5002:5002"
